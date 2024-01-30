@@ -26,8 +26,8 @@ public  class SocketStream {
         serverIpAdress = Utils.getServerIpAddress(mContext);
         mListener = listener;
         try {
-            //String url = "http://" + serverIpAdress + ":" + port;
-            String url = "https://f514-2a09-bac1-27a0-48-00-214-2c.ngrok-free.app/";
+            String url = "http://" + serverIpAdress + ":" + port;
+            //String url = "https://f514-2a09-bac1-27a0-48-00-214-2c.ngrok-free.app/";
             client_socket = IO.socket(url);
             client_socket.connect();
             Log.d("url", url);
