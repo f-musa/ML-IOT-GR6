@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:padding="20dp"
+    android:orientation="vertical"
+    android:background="@color/white"
+    tools:context=".MainActivity">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Connectez votre téléphone à l'ordinateur"
+        android:gravity="center"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        android:textSize="18dp"
+
+        />
+
+
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="match_parent"
+        android:layout_height="313dp"
+        android:layout_gravity="center"
+        android:src="@drawable/pc_smartphone_connect" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Status: En attente de connexion au server..."
+        android:gravity="center"
+        android:layout_marginBottom="15dp"
+        android:textColor="@color/black"
+        android:id="@+id/text_status"
+        android:textStyle="bold"
+        android:textSize="12dp"
+
+        />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Assurez vous que  l'ordinateur et le smartphone soit connectés au même réseau avant d'appuyer sur 'Démarrer'"
+        android:gravity="center"
+        android:layout_marginBottom="15dp"
+        android:textColor="@color/black"
+        android:textSize="12dp"
+
+        />
+
+
+
+    <Button
+        android:id="@+id/btn_connect"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="Demarrer" />
+
+
+</LinearLayout>
