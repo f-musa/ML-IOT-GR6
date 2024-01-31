@@ -43,10 +43,10 @@ public  class SocketStream {
     }
 
 
-    public static void sendData(byte[] data) {
+    public static void sendData(String tag, byte[] data) {
         if (client_socket != null && client_socket.connected()) {
             try {
-                client_socket.emit("transfer", data);
+                client_socket.emit(tag, data);
                 Log.d("Data Sent", "Message sent successfully");
             } catch (Exception e) {
                 Log.d("Error sending data", "Failed to send data to the server");

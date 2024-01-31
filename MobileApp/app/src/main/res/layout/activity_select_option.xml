@@ -15,7 +15,8 @@
         android:text="Selectionnez une option"
         android:textStyle="bold"
         android:textSize="15dp"
-        android:layout_marginBottom="20dp" />
+        android:textColor="@color/black"
+        android:layout_marginBottom="40dp" />
 
     <Button
         android:layout_width="match_parent"
@@ -31,11 +32,6 @@
         android:layout_marginBottom="20dp"
         android:id="@+id/btn_select_audio" />
 
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="3. Mouvements"
-        android:layout_marginBottom="20dp"
-        android:id="@+id/btn_select_autre" />
+
 
 </LinearLayout>

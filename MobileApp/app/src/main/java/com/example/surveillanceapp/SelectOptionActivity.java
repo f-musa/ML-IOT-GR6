@@ -15,12 +15,14 @@ public class SelectOptionActivity extends AppCompatActivity implements SocketStr
 
     SocketStream socketStream;
     Button btn_camera;
+    Button btn_select_audio;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_option);
         btn_camera = findViewById(R.id.btn_select_camera);
+        btn_select_audio = findViewById(R.id.btn_select_audio);
 
         //Intent intent = getIntent();
         //socketStream = new SocketStream(getApplicationContext(), SelectOptionActivity.this);
@@ -30,6 +32,15 @@ public class SelectOptionActivity extends AppCompatActivity implements SocketStr
             public void onClick(View view) {
                 Intent openCameraActivity = new Intent(SelectOptionActivity.this, CameraActivity.class);
                 startActivity(openCameraActivity);
+            }
+        });
+
+        btn_select_audio.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                Intent openAudioRecordingActivity = new Intent(SelectOptionActivity.this, AudioRecordingActivity.class);
+                startActivity(openAudioRecordingActivity);
             }
         });
     }

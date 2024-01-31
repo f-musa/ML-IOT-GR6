@@ -24,12 +24,11 @@ public class SocketThread extends AsyncTask<Void, Void, byte[]> {
             Thread thread = new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    SocketStream.sendData(bytes);
+                    SocketStream.sendData("transfer", bytes);
                 }
             });
             thread.start();
             image.close();
-            Log.d("video bytes", bytes.toString());
             return bytes;
         }
         return null;
