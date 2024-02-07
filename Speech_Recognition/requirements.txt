@@ -1,0 +1,6 @@
+Flask  
+Flask-SocketIO 
+speech_recognition
+openai
+python-dotenv
+pydub
