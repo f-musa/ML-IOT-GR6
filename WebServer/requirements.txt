@@ -5,4 +5,5 @@ Flask
 Werkzeug
 opencv_python
 numpy
-simpleaudio
+tensorflow
+cvlib

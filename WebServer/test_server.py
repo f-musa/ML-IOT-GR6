@@ -4,7 +4,9 @@ from engineio.payload import Payload
 import cv2
 import numpy as np
 from io import BytesIO
-import simpleaudio as sa
+import cvlib as cv
+from cvlib.object_detection import draw_bbox
+from object_detection import detect
 
 
 
@@ -33,7 +35,8 @@ def handle_disconnect():
 def handleImage(frames_bytes):
 	nparr = np.frombuffer(frames_bytes, np.uint8)
 	image = cv2.imdecode(nparr, cv2.IMREAD_COLOR) 
-	cv2.imwrite("image.jpg", image)
+	detect(image)
+	
       
 
 @socketio.on('transfer_audio')
