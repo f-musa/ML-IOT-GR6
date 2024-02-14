@@ -1,4 +1,4 @@
-package com.programminghut.yolo_deploy;
+package com.example.surveillanceapp;
 
 import android.graphics.RectF;
 

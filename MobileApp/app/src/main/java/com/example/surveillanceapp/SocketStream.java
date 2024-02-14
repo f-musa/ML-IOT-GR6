@@ -7,6 +7,7 @@ import android.util.Log;
 import org.json.JSONObject;
 
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 
 import io.socket.client.IO;
 import io.socket.client.Socket;
@@ -53,6 +54,15 @@ public  class SocketStream {
             }
         } else {
             Log.d("Socket Error", "Socket is not connected");
+        }
+    }
+
+    public static  void sendPrediction(String tag, ArrayList<JSONObject> predictions){
+        try {
+            client_socket.emit(tag, predictions);
+            Log.d("prediction send", "predictions send");
+        } catch (Exception e) {
+            Log.d("Error sending data", "Failed to send data to the server");
         }
     }
 
