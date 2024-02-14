@@ -35,13 +35,18 @@ def handle_disconnect():
 def handleImage(frames_bytes):
 	nparr = np.frombuffer(frames_bytes, np.uint8)
 	image = cv2.imdecode(nparr, cv2.IMREAD_COLOR) 
-	detect(image)
-	
+	cv2.imwrite("image.jpg", image)	
       
 
 @socketio.on('transfer_audio')
 def handle_audio(audio_bytes):
     print(type(audio_bytes))
+    
+
+@socketio.on('object_detection')
+def handle_object_detection(predictions):
+      print(predictions)
+      
 
 if __name__ == '__main__':
 	socketio.run(app, host='0.0.0.0', port=5000)
