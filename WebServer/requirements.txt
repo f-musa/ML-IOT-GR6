@@ -7,3 +7,5 @@ opencv_python
 numpy
 tensorflow
 cvlib
+sqlalchemy
+flask_sqlalchemy  

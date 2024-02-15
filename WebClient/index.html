@@ -1,0 +1,272 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Webcam Streaming</title>
+    <style>
+      #statusCircle {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        margin: 20px auto;
+        background-color: blue;
+      }
+      #status-bar {
+        border-color: 5px solid blue;
+        display: flex;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="status-bar">
+      <h1>status :</h1>
+      <span id="statusCircle"></span>
+    </div>
+
+    <video id="videoElement" width="640" height="480" autoplay></video>
+
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"
+      integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA=="
+      crossorigin="anonymous"
+    ></script>
+    <script>
+      function sendCameraStream() {
+        console.log("Sending webcam stream")
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          console.error("getUserMedia is not supported")
+          return
+        }
+
+        navigator.mediaDevices
+          .getUserMedia({ video: true })
+          .then((mediaStream) => {
+            const mediaRecorder = new MediaRecorder(mediaStream)
+
+            mediaRecorder.ondataavailable = (event) => {
+              if (socket.connected) {
+                console.log(event)
+                console.log("Sending video stream ..")
+                socket.emit("webcam_stream", event.data)
+              }
+            }
+
+            mediaRecorder.start(1000)
+            console.log(mediaRecorder.ondataavailable)
+            mediaRecorder.onstop = () => {
+              console.log("MediaRecorder stopped")
+            }
+          })
+          .catch((error) => {
+            console.error("Error accessing camera:", error)
+          })
+      }
+      const statusCircle = document.getElementById("statusCircle")
+      const videoElement = document.getElementById("videoElement")
+      let socket
+
+      // Check for camera support
+      navigator.mediaDevices
+        .getUserMedia({ video: true })
+        .then((stream) => {
+          videoElement.srcObject = stream
+        })
+        .catch((error) => {
+          console.error("Error accessing camera:", error)
+        })
+
+      // Connect to Socket.IO server
+      socket = io("http://localhost:5000")
+
+      socket.on("connect", () => {
+        console.log("Socket.IO connection opened")
+        sendCameraStream()
+      })
+
+      socket.on("disconnect", () => {
+        console.log("Socket.IO connection closed")
+      })
+
+      socket.on("status_change", (status) => {
+        console.log("Received status change:", status)
+        if (status === "green") {
+          statusCircle.style.backgroundColor = "green"
+        } else if (status === "red") {
+          statusCircle.style.backgroundColor = "red"
+        }
+      })
+    </script>
+  </body>
+</html> -->
+<div class="container">
+  <div class="box">
+    <h1>Inscription</h1>
+    <div class="user">
+      <i class="fas fa-user"></i>
+      <input
+        type="text"
+        name="username"
+        id="username"
+        placeholder="Nom Complet"
+      />
+      <i class="fas fa-envelope"></i>
+      <input type="text" name="email" id="email" placeholder="Email Address" />
+      <i class="fas fa-unlock-alt"></i>
+      <input
+        type="password"
+        name="password"
+        id="password"
+        placeholder="Mot De Passe"
+      />
+
+      <i class="fas fa-unlock-alt"></i>
+      <div><label for="file">Une photo de votre visage</label></div>
+      <input
+        type="file"
+        id="avatar"
+        name="avatar"
+        accept="image/png, image/jpeg"
+        placeholder="Une photo de vous"
+      />
+    </div>
+    <div class="login-btn">
+      <button class="btn"><a href="succes.html"> Envoyer</a></button>
+      <p class="signup">
+        Vous avez deja un compte ? <a href="#"><span>Connectez vous</span> </a>
+      </p>
+    </div>
+  </div>
+</div>
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Montserrat", sans-serif;
+    color: #fff;
+  }
+
+  h1 {
+    font-weight: 900;
+  }
+  .container {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 16px;
+    flex-direction: column;
+  }
+
+  .box {
+    width: 350px;
+    height: 460px;
+    font-size: 16px;
+    padding: 40px 40px;
+    background-color: #0f044c;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    border-radius: 30px;
+  }
+
+  .user {
+    margin-top: 50px;
+  }
+
+  .fas {
+    position: absolute;
+  }
+
+  input {
+    width: 90%;
+    margin-bottom: 25px;
+    padding: 0 30px 15px;
+    font-size: 16px;
+    border: none;
+    border-bottom: 1px solid #141e75;
+    outline: none;
+    background-color: #0f044c;
+    color: #fff;
+  }
+
+  input:focus {
+    border-bottom: 1px solid #eeeeee;
+  }
+
+  .reset-password {
+    color: #ff7f50;
+    text-align: right;
+    margin-top: 0px;
+    font-size: 12px;
+  }
+
+  .login-btn {
+    margin-top: 25px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+  }
+
+  .btn {
+    display: block;
+    width: 80%;
+    padding: 15px;
+    background-color: #eeeeee;
+    color: #0f044c;
+    border: none;
+    border-radius: 20px;
+    font-size: 20px;
+    font-weight: 600;
+    opacity: 0.8;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  }
+
+  .btn:hover {
+    opacity: 1;
+  }
+
+  .signup span {
+    color: #7fb8e6;
+  }
+
+  .signup span::hover {
+    color: #3793df;
+  }
+
+  a {
+    text-decoration: none;
+  }
+</style>
+<script>
+  function registerUser() {
+    const username = document.getElementById("username").value
+    const email = document.getElementById("email").value
+    const password = document.getElementById("password").value
+    const avatar = document.getElementById("avatar").files[0] // Récupérer le fichier
+
+    // Création d'un objet FormData pour envoyer les données
+    const formData = new FormData()
+    formData.append("username", username)
+    formData.append("email", email)
+    formData.append("password", password)
+    formData.append("avatar", avatar)
+
+    // Envoi de la requête POST au serveur
+    fetch("/register", {
+      method: "POST",
+      body: formData,
+    })
+      .then((response) => {
+        if (response.ok) {
+          // Redirection vers une page de succès
+          window.location.href = "success.html"
+        } else {
+          throw new Error("Erreur lors de l'inscription")
+        }
+      })
+      .catch((error) => {
+        console.error("Erreur :", error)
+      })
+  }
+</script>

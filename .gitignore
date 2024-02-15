@@ -1,3 +1,16 @@
+<<<<<<< HEAD
 venv/
 env/
 node_modules/
+=======
+venv
+.idea/
+.vscode/
+__pycache__/
+.tox/
+htmlcov/
+docs/_build/
+dist/
+database.db 
+instance
+>>>>>>> d37bd1096ffd3b8556a35ebbe0fe53d2b010f56d
