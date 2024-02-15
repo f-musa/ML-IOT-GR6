@@ -46,10 +46,8 @@ def handle_disconnect():
     
 
 @socketio.on('transfer')
-def handleImage(msg):
-	nparr = np.frombuffer(msg, np.uint8)
-	image = cv2.imdecode(nparr, cv2.IMREAD_COLOR) 
-	cv2.imwrite("image.jpg", image)
+def handleImage(frames_bytes):
+	socketio.emit("object_detection_stream", frames_bytes);	
 
 @socketio.on('transfer_audio')
 def handle_audio(audio_bytes):
@@ -58,6 +56,12 @@ def handle_audio(audio_bytes):
 @socketio.on('webcam_stream')
 def handleWebCam(video_bytes):
 	print(bytes_to_image(video_bytes))
+
+
+@socketio.on('object_detection')
+def handle_object_detection(predictions):
+	socketio.emit("object_label", predictions)
+      
 	
 
 
