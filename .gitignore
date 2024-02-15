@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 venv/
 env/
 node_modules/
@@ -13,4 +12,4 @@ docs/_build/
 dist/
 database.db 
 instance
->>>>>>> d37bd1096ffd3b8556a35ebbe0fe53d2b010f56d
+
