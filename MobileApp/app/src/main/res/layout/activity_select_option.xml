@@ -21,14 +21,7 @@
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="1. Choisir la caméra"
-        android:layout_marginBottom="20dp"
-        android:id="@+id/btn_select_camera" />
-
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="3. Caméra + ML"
+        android:text="Choisir la caméra"
         android:layout_marginBottom="20dp"
         android:id="@+id/btn_select_camera_with_tensor" />
 

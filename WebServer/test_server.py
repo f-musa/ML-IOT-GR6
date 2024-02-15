@@ -33,9 +33,10 @@ def handle_disconnect():
 
 @socketio.on('transfer')
 def handleImage(frames_bytes):
-	nparr = np.frombuffer(frames_bytes, np.uint8)
-	image = cv2.imdecode(nparr, cv2.IMREAD_COLOR) 
-	cv2.imwrite("image.jpg", image)	
+	# nparr = np.frombuffer(frames_bytes, np.uint8)
+	# image = cv2.imdecode(nparr, cv2.IMREAD_COLOR) 
+	# cv2.imwrite("image.jpg", image)
+    socketio.emit("object_detection_stream", frames_bytes);	
       
 
 @socketio.on('transfer_audio')
@@ -45,8 +46,13 @@ def handle_audio(audio_bytes):
 
 @socketio.on('object_detection')
 def handle_object_detection(predictions):
-      print(predictions)
+    socketio.emit("object_label", predictions)
       
+
+@socketio.on('send_message')
+def handle_message(message):
+      print(message)
+      socketio.emit("response_from_server", "hello from server")
 
 if __name__ == '__main__':
 	socketio.run(app, host='0.0.0.0', port=5000)
