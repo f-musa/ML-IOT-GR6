@@ -1,3 +1,5 @@
+import base64
+from flask_socketio import SocketIO, emit
 from flask import Flask, render_template, Response, request, redirect, url_for
 import face_recognition
 import os, sys
@@ -12,6 +14,7 @@ import threading
 
 
 app = Flask(__name__)
+socketio = SocketIO(app)
 
 
 
@@ -94,6 +97,8 @@ class FaceRecognition:
         self.known_face_names = []
         self.process_current_frame = True
         self.encode_faces()
+        self.video_writer = None
+        self.recording = False
 
     def encode_faces(self):
         for image in os.listdir('faces'):
@@ -105,77 +110,58 @@ class FaceRecognition:
 
         print(self.known_face_names)
 
-    def run_recognition(self):
+    def process_frame(self, frame):
+
         self.encode_faces()
         video_capture = cv2.VideoCapture(0)
 
-
-        # Video recording setup
-        fps = 5
-        fourcc = cv2.VideoWriter_fourcc(*'XVID')
         recording = False
-        video_writer = None
+
+        if self.process_current_frame:
+            small_frame = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
+            rgb_small_frame = cv2.cvtColor(small_frame, cv2.COLOR_BGR2RGB)
+            self.face_locations = face_recognition.face_locations(rgb_small_frame)
+            self.face_encodings = face_recognition.face_encodings(rgb_small_frame, self.face_locations)
+
+            self.face_names = []
+            for face_encoding in self.face_encodings:
+                matches = face_recognition.compare_faces(self.known_face_encodings, face_encoding)
+                name = 'Unknown'
+                confidence = 'Unknown'
+
+                face_distances = face_recognition.face_distance(self.known_face_encodings, face_encoding)
+                best_match_index = np.argmin(face_distances)
+
+                if matches[best_match_index]:
+                    name = self.known_face_names[best_match_index]
+                    confidence = face_confidence(face_distances[best_match_index])
+                else:
+                    if not recording:
+                        self.start_recording(frame)
+                        recording = True
+                    if recording:
+                        self.video_writer.write(frame)
+
+                self.face_names.append(f'{name}({confidence})')
+
+        self.process_current_frame = not self.process_current_frame
+        for (top, right, bottom, left), name in zip(self.face_locations, self.face_names):
+            top *= 4
+            right *= 4
+            bottom *= 4
+            left *= 4
+
+            cv2.rectangle(frame, (left, top), (right, bottom), (0, 0, 255), 2)
+            cv2.rectangle(frame, (left, bottom - 35), (right, bottom), (0, 0, 255), -1)
+            cv2.putText(frame, name, (left + 6, bottom - 6), cv2.FONT_HERSHEY_DUPLEX, 0.8, (255, 255, 255), 1)
+
+        ret, buffer = cv2.imencode('.jpg', frame)
+        frame = buffer.tobytes()
+
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
 
-        if not video_capture.isOpened():
-            sys.exit('Video source not found...')
-
-        while True:
-            ret, frame = video_capture.read()
-
-            if self.process_current_frame:
-                small_frame = cv2.resize(frame, (0,0), fx=0.25, fy=0.25)
-                rgb_small_frame = cv2.cvtColor(small_frame, cv2.COLOR_BGR2RGB)
-                self.face_locations = face_recognition.face_locations(rgb_small_frame)
-                self.face_encodings = face_recognition.face_encodings(rgb_small_frame, self.face_locations)
-
-                self.face_names = []
-                for face_encoding in self.face_encodings:
-                    matches = face_recognition.compare_faces(self.known_face_encodings, face_encoding)
-                    name = 'Unknown'
-                    confidence = 'Unknown'
-
-                    face_distances = face_recognition.face_distance(self.known_face_encodings, face_encoding)
-                    best_match_index = np.argmin(face_distances)
-
-                    if matches[best_match_index]:
-                        name = self.known_face_names[best_match_index]
-                        confidence = face_confidence(face_distances[best_match_index])
-                    else:
-                        if not recording:
-                            timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-                            video_filename = os.path.join('unknown_faces', f'unknown_{timestamp}.avi')
-                            video_writer = cv2.VideoWriter(video_filename, fourcc, fps,
-                                                           (frame.shape[1], frame.shape[0]))
-                            recording = True
-                        if recording:
-                            video_writer.write(frame)
-
-                       # print("Cheating detected! Unknown face saved.")
-                        #save_unknown_face_image(frame)
-                        #print("Cheating detected! Unknown face saved.")
-
-                    self.face_names.append(f'{name}({confidence})')
-
-            self.process_current_frame = not self.process_current_frame
-            for (top, right, bottom, left), name in zip(self.face_locations, self.face_names):
-                top *= 4
-                right *= 4
-                bottom *= 4
-                left *= 4
-
-                cv2.rectangle(frame,(left,top), (right,bottom), (0,0,255), 2)
-                cv2.rectangle(frame,(left,bottom - 35), (right,bottom), (0,0,255), -1)
-                cv2.putText(frame, name, (left + 6, bottom - 6), cv2.FONT_HERSHEY_DUPLEX, 0.8, (255,255,255), 1)
-
-            ret, buffer = cv2.imencode('.jpg', frame)
-            frame = buffer.tobytes()
-
-            yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
-
-        video_writer.release()
-        print(f"video saved as {video_filename}")
         #     if cv2.waitKey(1) == ord('q'):
         #         break
         #
@@ -183,10 +169,38 @@ class FaceRecognition:
         # cv2.destroyAllWindows()
 
 
+    def start_recording(self, frame):
+        fps = 20  # Assuming 20 FPS, adjust based on your needs
+        fourcc = cv2.VideoWriter_fourcc(*'XVID')
+        frame_width, frame_height = frame.shape[1], frame.shape[0]
+        timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        video_filename = f"unknown_faces/unknown_{timestamp}.avi"
+        self.video_writer = cv2.VideoWriter(video_filename, fourcc, fps, (frame_width, frame_height))
+        self.recording = True
+
+    def stop_recording(self):
+        if self.video_writer:
+            self.video_writer.release()
+        self.recording = False
+        self.video_writer = None
+
+
+
+@socketio.on('frame')
+def handle_frame(data):
+    # Decode the frame received from the client
+    img_bytes = base64.b64decode(data)
+    nparr = np.frombuffer(img_bytes, np.uint8)
+    frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+
+    # Process the frame using FaceRecognition instance
+    face_recognition_instance.process_frame(frame)
+    # you have to add an if condition to close properly the video writer to be sure the cheating video recorded is not damaged !
+    #face_recognition_instance.stop_recording()
+
 
 
 face_recognition_instance = FaceRecognition()
-
 
 
 @app.route('/video')
