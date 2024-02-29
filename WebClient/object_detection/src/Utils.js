@@ -13,3 +13,37 @@ export const concatenateLabels = (list) => {
     });
       return concatenatedString;
   };
+
+
+
+// webcam to bytes 
+
+export const captureFrameAndSendIt = async (socket, stream) => {
+  const videoTrack = stream.getVideoTracks()[0];
+  const imageCapture = new ImageCapture(videoTrack);
+
+  try {
+    const frame = await imageCapture.grabFrame();
+    const blob = await frameToBlob(frame);
+    const byteArray = await blobToByteArray(blob);
+    
+    // Send byte array to server
+    socket.emit('webcam_stream', byteArray);
+  } catch (error) {
+    console.error('Error capturing frame:', error);
+  }
+};
+
+const frameToBlob = async (frame) => {
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width = frame.width;
+  canvas.height = frame.height;
+  ctx.drawImage(frame, 0, 0);
+  return new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg'));
+};
+
+const blobToByteArray = async (blob) => {
+  const arrayBuffer = await blob.arrayBuffer();
+  return new Uint8Array(arrayBuffer);
+};

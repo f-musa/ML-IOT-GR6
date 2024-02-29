@@ -31,7 +31,8 @@ public  class SocketStream {
             //String url = "https://f514-2a09-bac1-27a0-48-00-214-2c.ngrok-free.app/";
             client_socket = IO.socket(url);
             client_socket.connect();
-            Log.d("url", url);
+            client_socket.emit("whoiam", "MOBILE");
+
             client_socket.on("from_server", ListenToServer);
 
             //this.client_socket.on(Socket.EVENT_CONNECT_ERROR, onConnectError);
@@ -69,7 +70,7 @@ public  class SocketStream {
     public static Emitter.Listener ListenToServer = new Emitter.Listener() {
         @Override
         public void call(final Object... args) {
-            JSONObject data = (JSONObject) args[1];
+            JSONObject data = (JSONObject) args[0];
             mListener.receiveData(data);
         }
     };
