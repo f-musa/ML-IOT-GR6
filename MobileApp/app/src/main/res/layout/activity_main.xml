@@ -13,6 +13,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:id="@+id/status_title"
         android:text="Connectez votre téléphone à l'ordinateur"
         android:gravity="center"
         android:textStyle="bold"
@@ -30,6 +31,8 @@
         android:layout_gravity="center"
         android:src="@drawable/pc_smartphone_connect" />
 
+
+
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -46,7 +49,56 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Assurez vous que  l'ordinateur et le smartphone soit connectés au même réseau avant d'appuyer sur 'Démarrer'"
+        android:id="@+id/label_connected_user"
+        android:text="Utilisateur connecté(e): "
+        android:textStyle="bold"
+        android:textSize="14dp"
+        android:textColor="@color/black"
+        android:layout_marginBottom="10dp"
+        android:visibility="gone"
+        />
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/user_id"
+        android:text="ID: "
+        android:textStyle="bold"
+        android:textSize="13dp"
+        android:textColor="@color/black"
+        android:layout_marginBottom="10dp"
+        android:visibility="gone"
+        />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/full_name"
+        android:text="Prénom et nom: "
+        android:textStyle="bold"
+        android:textSize="13dp"
+        android:textColor="@color/black"
+        android:layout_marginBottom="10dp"
+        android:visibility="gone"
+        />
+
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/email"
+        android:text="Email: "
+        android:textStyle="bold"
+        android:textSize="13dp"
+        android:textColor="@color/black"
+        android:layout_marginBottom="15dp"
+        android:visibility="gone"
+        />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/connect_help"
+        android:text="Veuillez scanner le QR code qui apparait au niveau de l'ecran de l'ordinateur"
         android:gravity="center"
         android:layout_marginBottom="15dp"
         android:textColor="@color/black"
@@ -57,11 +109,11 @@
 
 
     <Button
-        android:id="@+id/btn_connect"
+        android:id="@+id/btn_scan"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:text="Demarrer" />
+        android:text="Scanner le QR Code" />
 
 
 </LinearLayout>

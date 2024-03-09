@@ -1,0 +1,6 @@
+flask_socketio
+requests
+websocket-client
+opencv-python
+easyocr
+pytesseract

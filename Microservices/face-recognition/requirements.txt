@@ -1,0 +1,6 @@
+numpy
+requests
+opencv-python
+flask
+flask_socketio  
+face-recognition

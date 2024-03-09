@@ -4,6 +4,7 @@ package com.example.surveillanceapp;
 import android.content.Context;
 import android.util.Log;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.net.URISyntaxException;
@@ -24,22 +25,24 @@ public  class SocketStream {
 
     public static void connect(Context context, SocketStreamListener listener) {
         mContext = context;
-        serverIpAdress = Utils.getServerIpAddress(mContext);
         mListener = listener;
         try {
-            String url = "http://" + serverIpAdress + ":" + port;
-            //String url = "https://f514-2a09-bac1-27a0-48-00-214-2c.ngrok-free.app/";
+            String url = ConnectedUser.serverUrl;
+            if (url == null){
+                serverIpAdress = Utils.getServerIpAddress(mContext);
+                url = "http://" + serverIpAdress + ":" + port;
+            }
             client_socket = IO.socket(url);
             client_socket.connect();
             client_socket.emit("whoiam", "MOBILE");
 
             client_socket.on("from_server", ListenToServer);
 
-            //this.client_socket.on(Socket.EVENT_CONNECT_ERROR, onConnectError);
+            client_socket.on("disconnect", onConnectError);
 
 
-        } catch (URISyntaxException e) {
-            Log.e("error", e.toString());
+        } catch (Exception e) {
+            Log.e("ERROR_SERVER_****", e.toString());
             throw new RuntimeException(e);
         }
     }
@@ -49,6 +52,19 @@ public  class SocketStream {
         if (client_socket != null && client_socket.connected()) {
             try {
                 client_socket.emit(tag, data);
+                Log.d("Data Sent", "Message sent successfully");
+            } catch (Exception e) {
+                Log.d("Error sending data", "Failed to send data to the server");
+            }
+        } else {
+            Log.d("Socket Error", "Socket is not connected");
+        }
+    }
+
+    public static void sendMessage(String tag, String message) {
+        if (client_socket != null && client_socket.connected()) {
+            try {
+                client_socket.emit(tag, message);
                 Log.d("Data Sent", "Message sent successfully");
             } catch (Exception e) {
                 Log.d("Error sending data", "Failed to send data to the server");
@@ -71,6 +87,23 @@ public  class SocketStream {
         @Override
         public void call(final Object... args) {
             JSONObject data = (JSONObject) args[0];
+            mListener.receiveData(data);
+        }
+    };
+
+    public static Emitter.Listener onConnectError = new Emitter.Listener() {
+        @Override
+        public void call(final Object... args) {
+            Log.d("Socket Error", "Socket is not connected");
+            JSONObject data = new JSONObject();
+
+            try {
+                data.put("code", "disconnected");
+                data.put("message", "The server is disconnected");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
             mListener.receiveData(data);
         }
     };
