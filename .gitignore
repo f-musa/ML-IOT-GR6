@@ -1,11 +1,12 @@
 venv
-.idea/
+env/
+.env
+node_modules/
+.idea
 .vscode/
 __pycache__/
 .tox/
-htmlcov/
 docs/_build/
 dist/
 database.db 
 instance
-.env
