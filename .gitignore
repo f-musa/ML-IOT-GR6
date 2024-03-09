@@ -1,7 +1,7 @@
-venv/
-env/
-node_modules/
 venv
+env/
+.env
+node_modules/
 .idea/
 .vscode/
 __pycache__/

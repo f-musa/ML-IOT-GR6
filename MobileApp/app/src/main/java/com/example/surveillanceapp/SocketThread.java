@@ -58,18 +58,25 @@ public class SocketThread extends AsyncTask<Void, Void, byte[]> {
 
             for(Recognition recognition: recognitions){
                 JSONObject jsonObject = new JSONObject();
+                RectF location = recognition.getLocation();
+                float distance = (float) (2 * 3.14*180 / ((location.right - location.left) + (location.bottom - location.top)*360)*1000+3);
+
                 if(recognition.getConfidence() > 0.4){
 
                     try {
                         jsonObject.put("label_name",recognition.getLabelName());
                         jsonObject.put("label_score",recognition.getLabelScore());
                         jsonObject.put("confidence",recognition.getConfidence());
+                        jsonObject.put("distance", distance);
+                        // jsonObject.put("location_top", location.top);
+                        //jsonObject.put("location_left", location.left);
+                        //jsonObject.put("location_bottom", location.bottom);
+                        //jsonObject.put("location_right", location.right);
                     }catch (Exception e){
 
                     }
                     predictions.add(jsonObject);
 
-                    RectF location = recognition.getLocation();
                     canvas.drawRect(location, boxPaint);
                     canvas.drawText(recognition.getLabelName() + ":" + recognition.getConfidence(), location.left, location.top, textPain);
 
