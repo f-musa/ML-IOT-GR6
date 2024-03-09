@@ -2,7 +2,7 @@ venv
 env/
 .env
 node_modules/
-.idea/
+.idea
 .vscode/
 __pycache__/
 .tox/
