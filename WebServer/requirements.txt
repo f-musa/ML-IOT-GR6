@@ -5,3 +5,5 @@ Flask
 Werkzeug
 opencv_python
 numpy
+sqlalchemy
+flask_sqlalchemy  
