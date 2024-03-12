@@ -5,6 +5,7 @@ import static androidx.core.content.ContextCompat.getMainExecutor;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.ImageFormat;
+import android.graphics.Paint;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
@@ -16,6 +17,7 @@ import android.hardware.camera2.params.OutputConfiguration;
 import android.hardware.camera2.params.SessionConfiguration;
 import android.media.ImageReader;
 import android.os.Build;
+import android.text.TextPaint;
 import android.util.Log;
 import android.view.Surface;
 import android.view.TextureView;
@@ -40,10 +42,18 @@ public class CameraHandler {
 
     private ImageReader imageReader;
 
-    public CameraHandler(Context context, TextureView textureView, CameraManager cameraManager){
+    Paint boxPain = new Paint();
+    Paint textPain = new Paint();
+
+    Yolov5TFLiteDetector yolov5TFLiteDetector;
+
+    public CameraHandler(Context context, TextureView textureView, CameraManager cameraManager, Yolov5TFLiteDetector yolov5TFLiteDetector, Paint textPaint, Paint boxPaint){
         this.mContext = context;
         this.textureView = textureView;
         this.cameraManager = cameraManager;
+        this.yolov5TFLiteDetector = yolov5TFLiteDetector;
+        this.textPain = textPaint;
+        this.boxPain = boxPaint;
     }
 
     public void startCamera() {
@@ -143,7 +153,7 @@ public class CameraHandler {
             new ImageReader.OnImageAvailableListener() {
                 @Override
                 public void onImageAvailable(ImageReader reader) {
-                    new SocketThread(imageReader).execute();
+                    new SocketThread(imageReader, yolov5TFLiteDetector, textPain, boxPain).execute();
                 }
             };
 

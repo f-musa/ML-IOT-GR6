@@ -1,0 +1,12 @@
+Flask-SocketIO
+python-engineio
+python-socketio
+Flask
+Werkzeug
+opencv-python==4.5.4.60
+numpy
+sqlalchemy
+flask_sqlalchemy  
+Pillow==9.5.0
+
+

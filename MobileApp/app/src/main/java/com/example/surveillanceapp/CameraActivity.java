@@ -7,6 +7,8 @@ import androidx.core.app.ActivityCompat;
 
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.hardware.camera2.CameraManager;
 import android.os.Bundle;
 import android.view.TextureView;
@@ -23,6 +25,11 @@ public class CameraActivity extends AppCompatActivity{
 
     private CameraManager cameraManager;
 
+    Yolov5TFLiteDetector yolov5TFLiteDetector;
+
+    Paint boxPaint = new Paint();
+    Paint textPain = new Paint();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,7 +41,16 @@ public class CameraActivity extends AppCompatActivity{
         textureView = findViewById(R.id.texture);
         cameraManager = (CameraManager) getSystemService(CAMERA_SERVICE);
 
-        this.cameraHandler = new CameraHandler(getApplicationContext(), textureView, cameraManager);
+        boxPaint.setStrokeWidth(5);
+        boxPaint.setStyle(Paint.Style.STROKE);
+        boxPaint.setColor(Color.RED);
+
+        textPain.setTextSize(50);
+        textPain.setColor(Color.GREEN);
+        textPain.setStyle(Paint.Style.FILL);
+        yolov5TFLiteDetector = new Yolov5TFLiteDetector();
+
+        this.cameraHandler = new CameraHandler(getApplicationContext(), textureView, cameraManager, yolov5TFLiteDetector, textPain, boxPaint);
         this.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
        // SocketStream.connect(getApplicationContext());
