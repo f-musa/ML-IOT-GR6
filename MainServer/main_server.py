@@ -149,7 +149,7 @@ def signup():
     id = request.form['id']
     password = request.form['password']
     roleUser = request.form['roleUser']
-    file = request.files['idPhoto']
+    file = request.files['idPhoto'] if request.files.keys().__contains__('idPhoto') else None 
 
     if not (nom and prenom and id and password and roleUser):
         # If any required field is missing, return an error response
