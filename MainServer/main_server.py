@@ -1,30 +1,39 @@
-from flask import Flask,request
+from flask import Flask, jsonify,request, session
 from flask_socketio import SocketIO
 from client import ClientSocket
 from flask_sqlalchemy import SQLAlchemy
 from engineio.payload import Payload
 from client_thread import ClientThread
+from flask_cors import CORS
+from models.schema import *
+from sqlalchemy.orm import sessionmaker
+from flask_jwt_extended import create_access_token,get_jwt,get_jwt_identity, unset_jwt_cookies, jwt_required, JWTManager
 import json
 import os
 
 UPLOAD_FOLDER = 'uploads'
+ID_IMG_FOLDER = 'identification'
 
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'this_is_a_production_server'
+CORS(app)
+app.config['SECRET_KEY'] = 'this_is_a_development_server'
+app.config['JWT_SECRET_KEY'] = 'this_is_a_development_server'  # Change this to a secure secret key
 Payload.max_decode_packets = 100
 socketio = SocketIO(app, cors_allowed_origins='*')
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db' 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+app.config['ID_IMG_FOLDER'] = ID_IMG_FOLDER
+jwt = JWTManager(app)
 db = SQLAlchemy()
 db.init_app(app)
+engine =''
 
 if not os.path.exists('database.db'):
-	with app.app_context():
-		from models.schema import create_all_metadata
-		create_all_metadata()
-		print('Created Database!')
+    os.mkdir(ID_IMG_FOLDER)
+    with app.app_context():
+	    engine = create_database()
 
 connected_clients = {}
 face_client = None
@@ -128,6 +137,85 @@ def handle_face_result(results):
 @socketio.on('text_detection')
 def handle_text_detection(results):
     print(results)
+
+
+#web server endpoints
+@app.route('/signup', methods=['POST'])
+def signup():
+    db_session = create_session()
+    
+    nom = request.form['nom']
+    prenom = request.form['prenom']
+    id = request.form['id']
+    password = request.form['password']
+    roleUser = request.form['roleUser']
+    file = request.files['idPhoto'] if request.files.keys().__contains__('idPhoto') else None 
+
+    if not (nom and prenom and id and password and roleUser):
+        # If any required field is missing, return an error response
+        return jsonify({'message': f'Veuillez Renseignez tous les champs:'}), 400
+    
+    # Check if user already exists
+    existing_user = db_session.query(Etudiant).filter_by(id=id).first() or db_session.query(Surveillant).filter_by(id=id).first()
+    if existing_user:
+        return jsonify({'message': 'User already exists'}), 400
+
+
+    # Create new user
+    if(roleUser=='etudiant'):
+        if not(file):
+            return jsonify({'message': f'Si vous etes etudiant, veuillez renseigner une photo'}), 400
+        # Save file to a specific directory, you can adjust the path as needed
+        file_ext = os.path.splitext(file.filename)[1]
+        new_filename = f"{id}{file_ext}"
+        file_path = f"{ID_IMG_FOLDER}/{new_filename}"
+        file.save(file_path)
+        new_etudiant = Etudiant(id=id,password=password, nom=nom, prenom=prenom, chemin_photo=file_path)
+        db_session.add(new_etudiant)
+    else:
+        new_surveillant = Surveillant(id=id,password=password)
+        db_session.add(new_surveillant)
+    
+    db_session.commit()
+    return jsonify({'message': 'User created'}), 200
+
+
+@app.route('/signin', methods=['POST'])
+def login():
+    db_session = create_session()
+    data = request.json
+    if data is None:
+        return jsonify({'error': 'Request invalid'}), 400
+
+    id = data.get('id')
+    password = data.get('password')
+
+    if id is None or password is None:
+        return jsonify({'error': 'id and password are required'}), 400
+
+    # Query the database to find the user
+    user = db_session.query(Etudiant).filter_by(id=id).first()
+    user2 = db_session.query(Surveillant).filter_by(id=id).first()
+    role = 'etudiant' if (user is not None and user.password == password) else 'professeur'
+    if (user is None or user.password != password) and (user2 is None or user2.password != password) :
+        return jsonify({'error': 'Invalid username or password'}), 401
+    else:
+        access_token = create_access_token(identity=id)
+        print(access_token)
+        if(role=='etudiant'):
+            return jsonify({'token': access_token,'role' : role,'id':user.id,'nom':user.nom,'prenom':user.prenom}), 200
+        else:
+            return jsonify({'token': access_token,'role' : role,'id':user2.id,'nom':user2.nom,'prenom':user.prenom}), 200
+
+
+    # User authenticated successfully, create a session
+   
+
+@app.route("/logout", methods=["POST"])
+def logout():
+    resp = jsonify({'logout': True})
+    unset_jwt_cookies(resp)
+    return resp, 200
 
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0', port=5000, debug=True)

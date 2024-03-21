@@ -3,6 +3,8 @@ import './App.css';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import EtudiantHome from './pages/EtudiantHome';
+import ProfesseurHome from './pages/ProfesseurHome';
 import ScanQRCode from './pages/ScanQRCode';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import NoPage from './pages/NoPage';
@@ -29,11 +31,11 @@ const theme = createTheme({
       contrastText: '#000',
     },
     red: {
-        light: '#ff6659',
-        main: '#ff4436',
-        dark: '#cc2211',
-        contrastText: '#fff',
-      }
+      light: '#ff6659',
+      main: '#ff4436',
+      dark: '#cc2211',
+      contrastText: '#fff',
+    }
 
   },
 });
@@ -47,23 +49,26 @@ const theme = createTheme({
 
 export default function App() {
 
-  useEffect(()=>{
+  useEffect(() => {
     etablish_socket_connection();
   }, [])
   return (
+
     <ThemeProvider theme={theme}>
-    <BrowserRouter>
-      <Routes>
-          <Route exact path="/"  element={<Home />}/>
+      <BrowserRouter>
+        <Routes>
+          <Route exact path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/student" element={<EtudiantHome />} />
+          <Route path="/professeur" element={<ProfesseurHome />} />
           <Route path="/connect-mobile-device" element={<ScanQRCode socket={socket} />} />
           <Route path="/check-devices" element={<CheckDevices socket={socket} />} />
-          <Route path="/identity-control" element={<IdentityControl socket={socket}/>} />
-          <Route path="/environment-control" element={<EnvironmentControl socket={socket}/>} />
+          <Route path="/identity-control" element={<IdentityControl socket={socket} />} />
+          <Route path="/environment-control" element={<EnvironmentControl socket={socket} />} />
           <Route path="*" element={<NoPage />} />
-      </Routes>
-    </BrowserRouter>
+        </Routes>
+      </BrowserRouter>
     </ThemeProvider>
   );
 }
