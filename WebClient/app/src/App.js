@@ -14,6 +14,8 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 import IdentityControl from './pages/IdentityControl';
 import EnvironmentControl from './pages/EnvironmentControl';
 
+import { serverUrl } from './Utils';
+
 const theme = createTheme({
   palette: {
     primary: {
@@ -49,6 +51,8 @@ export default function App() {
 
   useEffect(()=>{
     etablish_socket_connection();
+    console.log(serverUrl);
+    console.log(socket);
   }, [])
   return (
     <ThemeProvider theme={theme}>
