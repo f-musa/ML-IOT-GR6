@@ -10,3 +10,4 @@ docs/_build/
 dist/
 database.db 
 instance
+MainServer\identification
