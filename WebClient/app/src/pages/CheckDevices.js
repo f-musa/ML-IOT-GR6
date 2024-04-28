@@ -48,7 +48,7 @@ const CheckDevices = (props) => {
 
     return (
         <div>
-            <Navbar />
+            <Navbar socket={socket} />
             <Container style={{marginTop: 5}}>
             <Typography marginTop={4} marginBottom={2} variant='h5'>Test des équipements</Typography>
 

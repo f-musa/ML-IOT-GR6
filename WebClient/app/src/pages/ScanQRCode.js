@@ -42,7 +42,7 @@ const ScanQRCode = (props) => {
     }, [socketData, socket])
     return (
         <div>
-            <Navbar />
+            <Navbar socket={socket} />
             <Container>
                 <Grid
                     container

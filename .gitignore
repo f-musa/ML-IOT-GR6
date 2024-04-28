@@ -1,5 +1,6 @@
 venv
 env/
+faces/
 .env
 node_modules/
 .idea
