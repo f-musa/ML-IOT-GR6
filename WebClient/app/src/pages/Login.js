@@ -67,13 +67,25 @@ const Login = () => {
             });
             if (response.ok) {
                 const data = await response.json();
-                console.log(data.token + data.role);
+                console.log(data);
+
+                const infos = {
+                    prenom: data.prenom,
+                    nom: data.nom,
+                    email: `${data.id}@sorbonne.fr`,
+                    id: data.id
+                }
+
                 localStorage.setItem('token', data.token); // Store token in localStorage
                 localStorage.setItem('role', data.role); // Store token in localStorage
                 if (data.role === 'etudiant')
-                    navigate('/student')
+                    navigate('/connect-mobile-device', {
+                        state: {
+                            user: infos
+                        }
+                    })
                 else
-                    navigate('/professeur')
+                    navigate('/professeur', infos)
             } else {
                 // Handle login failure
                 alert("Informations invalides! ");

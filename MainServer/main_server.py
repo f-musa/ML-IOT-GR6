@@ -202,7 +202,11 @@ def login():
     else:
         access_token = create_access_token(identity=id)
         print(access_token)
-        return jsonify({'token': access_token,'role' : role}), 200
+        if(role=='etudiant'):
+            return jsonify({'token': access_token,'role' : role,'id':user.id,'nom':user.nom,'prenom':user.prenom}), 200
+        else:
+            return jsonify({'token': access_token,'role' : role,'id':user2.id,'nom':user2.nom,'prenom':user.prenom}), 200
+
 
     # User authenticated successfully, create a session
    
