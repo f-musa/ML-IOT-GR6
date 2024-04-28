@@ -12,3 +12,4 @@ dist/
 database.db 
 instance
 MainServer\identification
+identification
