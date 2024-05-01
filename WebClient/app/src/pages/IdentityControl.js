@@ -16,6 +16,10 @@ const IdentityControl = (props) => {
 
 
     let navigate = useNavigate();
+
+    let user_id = localStorage.getItem('id')
+    let prenom = localStorage.getItem('prenom')
+    let nom = localStorage.getItem('nom')
     let socket = props.socket;
     let mediaStream = null;
     let requestAnim1 = null;
@@ -62,7 +66,7 @@ const IdentityControl = (props) => {
                     const byteArray = await blob.arrayBuffer();
 
                     if (startFaceRecognition) {
-                        socket.emit("webcam_stream", byteArray)
+                        socket.emit("webcam_stream", {'user_id': user_id, 'prenom': prenom, 'nom': nom, 'bytes_frames': byteArray})
                         socket.on('face_recognization', handleObjectDetectionStream);
 
                     }
@@ -106,7 +110,7 @@ const IdentityControl = (props) => {
     };
   return (
     <div>
-    <Navbar />
+    <Navbar socket={socket} />
     <Container>
         <Grid
             container

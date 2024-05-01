@@ -10,6 +10,7 @@ from sqlalchemy.orm import sessionmaker
 from flask_jwt_extended import create_access_token,get_jwt,get_jwt_identity, unset_jwt_cookies, jwt_required, JWTManager
 import json
 import os
+import cv2
 
 UPLOAD_FOLDER = 'uploads'
 ID_IMG_FOLDER = 'identification'
@@ -31,7 +32,8 @@ db.init_app(app)
 engine =''
 
 if not os.path.exists('database.db'):
-    os.mkdir(ID_IMG_FOLDER)
+    if not os.path.exists(ID_IMG_FOLDER):
+        os.mkdir(ID_IMG_FOLDER)
     with app.app_context():
 	    engine = create_database()
 
@@ -52,7 +54,7 @@ def handle_disconnect():
             keys.append(key)
     for key in keys:
          del connected_clients[key]
-         tag = key.lower() + "_disconnected"
+         tag = "microservice_disconnected"
          data = key.lower() + "is disconnected"
          if "WEB_CLIENT" in connected_clients:
             thread_web_client = ClientThread(socketio=socketio, client=connected_clients["WEB_CLIENT"], tag=tag, data=data)
@@ -111,9 +113,9 @@ def handle_object_detection(predictions):
 
 # webcam pc
 @socketio.on('webcam_stream')
-def handle_webcam(frames_bytes):
+def handle_webcam(data):
     if "FACE_RECOGNIZATION" in connected_clients:
-        thread_face_recognization = ClientThread(socketio=socketio, client=face_client, tag="webcam", data=frames_bytes)
+        thread_face_recognization = ClientThread(socketio=socketio, client=face_client, tag="webcam", data=data)
         thread_face_recognization.start()
 
 
@@ -152,7 +154,6 @@ def signup():
     file = request.files['idPhoto'] if request.files.keys().__contains__('idPhoto') else None 
 
     if not (nom and prenom and id and password and roleUser):
-        # If any required field is missing, return an error response
         return jsonify({'message': f'Veuillez Renseignez tous les champs:'}), 400
     
     # Check if user already exists
@@ -165,13 +166,22 @@ def signup():
     if(roleUser=='etudiant'):
         if not(file):
             return jsonify({'message': f'Si vous etes etudiant, veuillez renseigner une photo'}), 400
-        # Save file to a specific directory, you can adjust the path as needed
         file_ext = os.path.splitext(file.filename)[1]
         new_filename = f"{id}{file_ext}"
         file_path = f"{ID_IMG_FOLDER}/{new_filename}"
         file.save(file_path)
         new_etudiant = Etudiant(id=id,password=password, nom=nom, prenom=prenom, chemin_photo=file_path)
         db_session.add(new_etudiant)
+
+        #send image to face recognition microservice
+        img = cv2.imread(file_path)
+        _, buffer = cv2.imencode('.jpg', img)
+        image_bytes = buffer.tobytes()
+        if "FACE_RECOGNIZATION" in connected_clients:
+            thread_face_recognization = ClientThread(socketio=socketio, client=face_client, tag="new_user_avatar", data={'new_user': str(id), 'image_bytes': image_bytes})
+            thread_face_recognization.start()
+        
+
     else:
         new_surveillant = Surveillant(id=id,password=password)
         db_session.add(new_surveillant)
@@ -201,9 +211,14 @@ def login():
         return jsonify({'error': 'Invalid username or password'}), 401
     else:
         access_token = create_access_token(identity=id)
-        print(access_token)
         if(role=='etudiant'):
-            return jsonify({'token': access_token,'role' : role,'id':user.id,'nom':user.nom,'prenom':user.prenom}), 200
+            etudiant_details = {'token': access_token,'role' : role,'id':user.id,'nom':user.nom,'prenom':user.prenom}
+            # send user details to microservice face recognition
+            if "FACE_RECOGNIZATION" in connected_clients:
+                thread_face_recognization = ClientThread(socketio=socketio, client=face_client, tag="new_user_logged", data=etudiant_details)
+                thread_face_recognization.start()
+
+            return jsonify(etudiant_details), 200
         else:
             return jsonify({'token': access_token,'role' : role,'id':user2.id,'nom':user2.nom,'prenom':user.prenom}), 200
 

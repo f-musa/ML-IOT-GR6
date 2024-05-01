@@ -9,7 +9,7 @@ const EnvironmentControl = () => {
     const [startEnvControl, setStartEnvControl] = useState(false);
   return (
     <div>
-        <Navbar />
+        <Navbar socket={socket}/>
         <Container>
 
             <Grid

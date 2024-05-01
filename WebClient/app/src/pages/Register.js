@@ -51,7 +51,7 @@ const Register = () => {
     formData.append('password', document.getElementById('password').value);
     formData.append('idPhoto', file);
     formData.append('roleUser', document.getElementById('userRoleSelected').value);
-    console.log(formData)
+   
     try {
       const response = await fetch(' http://127.0.0.1:5000/signup', {
         method: 'POST',

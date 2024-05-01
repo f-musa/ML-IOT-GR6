@@ -1,11 +1,12 @@
 import React from 'react'
 import Navbar from '../components/Navbar'
 import { Container, Typography } from '@mui/material'
+import { socket } from '../Utils'
 
 const Home = () => {
   return (
     <div>
-        <Navbar />
+        <Navbar socket={socket} />
         <Container>
             <Typography variant='h5'>ExamApp</Typography>
         </Container>

@@ -13,6 +13,9 @@ import threading
 app = Flask(__name__)
 sio = socketio.Client()
 
+connected_users = {}
+face_recognition_instances = {}
+
 UPLOAD_FOLDER = 'faces'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -59,22 +62,31 @@ def save_unknown_face_image(frame):
 
 
 class FaceRecognition:
-    def __init__(self):
+    def __init__(self, user_id, fullname='user'):
         self.face_locations = []
         self.face_encodings = []
         self.face_names = []
         self.known_face_encodings = []
         self.known_face_names = []
         self.process_current_frame = True
+        self.user_id = user_id
+        self.fullname = fullname
         self.encode_faces()
 
     def encode_faces(self):
-        for image in os.listdir('faces'):
-            face_image = face_recognition.load_image_file(f'faces/{image}')
-            face_encoding = face_recognition.face_encodings(face_image)[0]
+        for image in os.listdir(f'faces/{self.user_id}'):
+            face_image = face_recognition.load_image_file(f'faces/{self.user_id}/{image}')
+            faces = face_recognition.face_encodings(face_image)
+            if len(faces) > 0:
+                face_encoding = faces[0]
+                self.known_face_encodings.append(face_encoding)
+                self.known_face_names.append(self.fullname)
+        
+        # face_image = face_recognition.load_image_file(f'faces/{self.user_id}.jpg')
+        # face_encoding = face_recognition.face_encodings(face_image)[0]
 
-            self.known_face_encodings.append(face_encoding)
-            self.known_face_names.append(image)
+        # self.known_face_encodings.append(face_encoding)
+        # self.known_face_names.append(f'{self.user_id}.jpg')
 
     def run_recognition(self, frame, socket, height, width):
         if self.process_current_frame:
@@ -151,11 +163,19 @@ class FaceRecognition:
         self.video_writer = None
 
 
-face_recognition_instance = FaceRecognition()
+# face_recognition_instance = FaceRecognition()
 
 @sio.on('webcam')
-def handle_face_recognization(bytes_frames):
-    global face_recognition_instance
+def handle_face_recognization(data):
+    bytes_frames = data['bytes_frames']
+    user_id = data['user_id']
+    fullname = str(data['prenom']) + " " + str(data['nom'])
+    global face_recognition_instances
+    if user_id not in face_recognition_instances:
+        face_r_instance = FaceRecognition(user_id=user_id, fullname=fullname)
+        face_recognition_instances[user_id] = face_r_instance
+
+    
     nparr = np.frombuffer(bytes_frames, np.uint8)
     frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
     scale_percent = 0.7
@@ -165,8 +185,28 @@ def handle_face_recognization(bytes_frames):
     height = int(original_height * scale_percent)
     dim = (width, height)
     resized_frame = cv2.resize(frame, dim, interpolation = cv2.INTER_AREA)
-    recognition_thread = threading.Thread(target=face_recognition_instance.run_recognition, args=(resized_frame,sio,original_height, original_width))
+    recognition_thread = threading.Thread(target=face_recognition_instances[user_id].run_recognition, args=(resized_frame,sio,original_height, original_width))
     recognition_thread.start()
+
+@sio.on('new_user_logged')
+def handle_new_user_logged(user):
+    connected_users[user['id']] = user
+    if user['id'] not in face_recognition_instances:
+        face_r_instance = FaceRecognition(user_id=user['id'], fullname=user['prenom'] + ' ' + user['nom'])
+        face_recognition_instances[user['id']] = face_r_instance
+    
+
+
+@sio.on('new_user_avatar')
+def handle_save_user_avatar(data):
+    dest_dir = "faces/" + str(data['new_user'])
+    filename = dest_dir + "/photo_identite.jpg"
+    image_bytes = data['image_bytes']
+    if not os.path.exists(dest_dir):
+        os.makedirs(dest_dir, mode=0o777)
+        nparr = np.frombuffer(image_bytes, np.uint8)
+        img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+        cv2.imwrite(filename, img)
 
 
 

@@ -1,5 +1,6 @@
 venv
 env/
+faces/
 .env
 node_modules/
 .idea
@@ -11,3 +12,4 @@ dist/
 database.db 
 instance
 MainServer\identification
+identification

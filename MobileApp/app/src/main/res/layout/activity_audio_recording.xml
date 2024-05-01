@@ -8,10 +8,7 @@
     android:gravity="center"
     android:background="@color/white" >
 
-    <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="150dp"
-        android:src="@drawable/recording_logo" />
+
 
     <TextView
         android:id="@+id/textViewStatus"
