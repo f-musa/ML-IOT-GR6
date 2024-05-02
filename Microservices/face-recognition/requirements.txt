@@ -1,5 +1,7 @@
 numpy
 requests
+cmake
+Pillow
 opencv-python
 flask
 flask_socketio  
