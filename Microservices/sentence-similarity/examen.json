@@ -1,0 +1,55 @@
+{
+    "questions": [
+      {
+        "question": "Quel est le type de machine learning où le modèle est entraîné sur un ensemble de données étiquetées ?",
+        "options": ["Apprentissage supervisé", "Apprentissage non supervisé", "Apprentissage par renforcement"],
+        "correct_answer": "Apprentissage supervisé"
+      },
+      {
+        "question": "Quel est l'objectif de l'apprentissage non supervisé ?",
+        "options": ["Prédire des étiquettes pour de nouvelles données", "Découvrir des structures ou des patterns dans les données", "Interagir avec un environnement pour prendre des décisions séquentielles"],
+        "correct_answer": "Découvrir des structures ou des patterns dans les données"
+      },
+      {
+        "question": "Quel est le type d'apprentissage utilisé pour apprendre à jouer à des jeux comme le Go ou le jeu vidéo Atari ?",
+        "options": ["Apprentissage supervisé", "Apprentissage non supervisé", "Apprentissage par renforcement"],
+        "correct_answer": "Apprentissage par renforcement"
+      },
+      {
+        "question": "Quelle est la première étape du processus de machine learning ?",
+        "options": ["Prétraitement des données", "Entraînement du modèle", "Collecte des données"],
+        "correct_answer": "Collecte des données"
+      },
+      {
+        "question": "Quelle est l'une des mesures couramment utilisées pour évaluer la performance d'un modèle de classification ?",
+        "options": ["Précision", "Moyenne", "Corrélation"],
+        "correct_answer": "Précision"
+      },
+      {
+        "question": "Quel type d'algorithme de machine learning est utilisé pour prédire des valeurs continues comme les prix de l'immobilier ou les revenus ?",
+        "options": ["Régression", "Classification", "Clustering"],
+        "correct_answer": "Régression"
+      },
+      {
+        "question": "Quelle mesure est utilisée pour évaluer la performance d'un modèle de régression ?",
+        "options": ["Précision", "Rappel", "Erreur quadratique moyenne"],
+        "correct_answer": "Erreur quadratique moyenne"
+      },
+      {
+        "question": "Quel est le principal objectif de l'optimisation des hyperparamètres dans le processus de machine learning ?",
+        "options": ["Maximiser la précision du modèle", "Minimiser le temps d'entraînement", "Trouver les meilleurs paramètres du modèle"],
+        "correct_answer": "Maximiser la précision du modèle"
+      },
+      {
+        "question": "Quel algorithme de machine learning est souvent utilisé pour les problèmes de classification avec deux classes ?",
+        "options": ["Régression logistique", "K-Means", "Arbre de décision"],
+        "correct_answer": "Régression logistique"
+      },
+      {
+        "question": "Quelle technique est utilisée pour éviter le surapprentissage dans les modèles de machine learning ?",
+        "options": ["Augmentation des données", "Régularisation", "Optimisation des hyperparamètres"],
+        "correct_answer": "Régularisation"
+      }
+    ]
+  }
+  
