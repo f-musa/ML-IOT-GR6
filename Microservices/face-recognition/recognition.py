@@ -114,7 +114,7 @@ class FaceRecognition:
                 # else:
                 #     if not recording:
                 #         timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-                #         video_filename = os.path.join('unknown_faces', f'unknown_{timestamp}.avi')
+                #         video_filename = os.path.join(f'unknown_faces/{self.user_id}', f'unknown_{timestamp}.avi')
                 #         video_writer = cv2.VideoWriter(video_filename, fourcc, fps,
                 #                                         (frame.shape[1], frame.shape[0]))
                 #         recording = True
@@ -152,7 +152,7 @@ class FaceRecognition:
         fourcc = cv2.VideoWriter_fourcc(*'XVID')
         frame_width, frame_height = frame.shape[1], frame.shape[0]
         timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        video_filename = f"unknown_faces/unknown_{timestamp}.avi"
+        video_filename = f"unknown_faces/{self.user_id}/unknown_{timestamp}.avi"
         self.video_writer = cv2.VideoWriter(video_filename, fourcc, fps, (frame_width, frame_height))
         self.recording = True
 
