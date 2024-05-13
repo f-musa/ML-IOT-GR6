@@ -77,7 +77,8 @@ const Login = () => {
                 }
 
                 localStorage.setItem('token', data.token); // Store token in localStorage
-                localStorage.setItem('role', data.role); // Store token in localStorage
+                localStorage.setItem('role', data.role); // Store role in localStorage
+                localStorage.setItem('userName', data.prenom + ' ' + data.nom); // Store username in localStorage
                 if (data.role === 'etudiant')
                     navigate('/connect-mobile-device', {
                         state: {

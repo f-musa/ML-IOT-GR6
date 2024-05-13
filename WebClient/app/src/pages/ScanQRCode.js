@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import Navbar from '../components/Navbar'
+import AuthNavbar from '../components/AuthNavbar'
 import { Alert, Box, Button, Card, CardContent, Container, Grid, List, ListItem, ListItemText, Typography } from '@mui/material'
 import { useLocation, useNavigate } from 'react-router-dom'
 import QRCode from 'react-qr-code'
@@ -42,7 +42,7 @@ const ScanQRCode = (props) => {
     }, [socketData, socket])
     return (
         <div>
-            <Navbar />
+            <AuthNavbar userName={localStorage.getItem('userName')}></AuthNavbar>
             <Container>
                 <Grid
                     container
