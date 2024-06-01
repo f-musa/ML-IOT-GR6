@@ -4,20 +4,20 @@ import { useNavigate } from 'react-router-dom';
 
 const Navbar = (props) => {
     let navigate = useNavigate();
-    let socket = props.socket;
-	const [socketData, setSocketData] = useState(null);
+  //   let socket = props.socket;
+	// const [socketData, setSocketData] = useState(null);
 
 
-    useEffect(()=>{
+  //   useEffect(()=>{
 
-      const handleMicroserviceDisconnected = (data)=>{
-          setSocketData(data);
-          console.log("--------------------Microservice disconnected",data);
-      }
+  //     const handleMicroserviceDisconnected = (data)=>{
+  //         setSocketData(data);
+  //         console.log("--------------------Microservice disconnected",data);
+  //     }
 
-      socket.on("microservice_disconnected", handleMicroserviceDisconnected);
+  //     socket.on("microservice_disconnected", handleMicroserviceDisconnected);
 
-    }, [socketData])
+  //   }, [socketData])
   return (
     <Box sx={{ flexGrow: 1 }}>
       <AppBar position="static">

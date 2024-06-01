@@ -4,5 +4,6 @@ cmake
 Pillow
 opencv-python
 flask
-flask_socketio  
+flask_socketio
+websocket-client
 face-recognition

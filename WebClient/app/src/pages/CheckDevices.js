@@ -6,6 +6,8 @@ import PhoneCameraTest from '../components/PhoneCameraTest';
 import MicrophoneTest from '../components/MicrophoneTest';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import AuthNavbar from '../components/AuthNavbar';
+
 
 
 
@@ -17,6 +19,8 @@ const CheckDevices = (props) => {
     const [isCameraAccessed, setIsCameraAccessed] = useState(null);
     const [isPhoneCameraAccessed, setIsPhoneCameraAccessed] = useState(null);
     const [isMicrophoneAccessed, setIsMicrophoneAccessed] = useState(null);
+    const [transcription, setTranscription] = useState(null);
+    
 
     const [isAllDevicesAccessed, setIsAllDevicesAccessed] = useState(null);
 
@@ -29,9 +33,6 @@ const CheckDevices = (props) => {
 
     useEffect(()=>{
 
-        console.log("webcam: " + isCameraAccessed);
-        console.log("phone: " + isPhoneCameraAccessed);
-        console.log("microphone: " + isMicrophoneAccessed);
 
         if (isCameraAccessed === true && isPhoneCameraAccessed === true && isMicrophoneAccessed === true){
             setIsAllDevicesAccessed(true);
@@ -48,7 +49,11 @@ const CheckDevices = (props) => {
 
     return (
         <div>
-            <Navbar socket={socket} />
+             {localStorage.getItem('userName') ? (
+            <AuthNavbar userName={localStorage.getItem('userName')}></AuthNavbar>
+            ):(
+                <Navbar socket={socket}/>
+            )}
             <Container style={{marginTop: 5}}>
             <Typography marginTop={4} marginBottom={2} variant='h5'>Test des équipements</Typography>
 
@@ -66,7 +71,7 @@ const CheckDevices = (props) => {
                             </CardContent>
                         </Card>
                     </Grid>
-                    <Grid item xs={12} md={5}>
+                    <Grid item xs={12} md={4}>
                         <Card style={{padding: '10px'}}>
                             <Typography>Téléphone: Caméra</Typography>
                             <CardContent>
@@ -79,12 +84,19 @@ const CheckDevices = (props) => {
                             </CardContent>
                         </Card>
                     </Grid>
-                    <Grid item xs={12} md={3}>
+                    <Grid item xs={12} md={4}>
                         <Card style={{padding: '10px'}}>
                             <Typography>Ordinateur: Microphone</Typography>
                             <MicrophoneTest isMicrophoneAccessed={isMicrophoneAccessed} setIsMicrophoneAccessed={setIsMicrophoneAccessed}/>
                         </Card>
                     </Grid>
+
+                    {/* <Grid item xs={12} md={12}>
+                        <Card style={{padding: '10px'}}>
+                            <Typography>Speech recognition</Typography>
+                            <SpeechRecognitionStream setTranscription = {setTranscription} playing={true} />
+                        </Card>
+                    </Grid> */}
 
                     {isAllDevicesAccessed !== null && (
                         <Grid item xs={12} md={12}>

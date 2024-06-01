@@ -24,7 +24,7 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 @sio.event
 def connect():
     print('Connected to the server')
-    sio.emit('whoiam', 'FACE_RECOGNIZATION')
+    sio.emit('whoiam', 'FACE_RECOGNITION')
 
 
 @sio.event
@@ -109,7 +109,7 @@ class FaceRecognition:
                     name = self.known_face_names[best_match_index]
                     name = name.split('.')[0]
                     confidence = face_confidence(face_distances[best_match_index])
-                    socket.emit('face_result', {'recognition': True, 'name': name, 'confidence': confidence})
+                    socket.emit('face_result', {'recognition': True, 'name': name, 'confidence': confidence, 'face_locations': self.face_locations})
 
                 # else:
                 #     if not recording:
@@ -125,7 +125,7 @@ class FaceRecognition:
                 #     #save_unknown_face_image(frame)
                 #     #print("Cheating detected! Unknown face saved.")
                 else:
-                    socket.emit('face_result', {'recognition': False, 'name': 'Unknown face'})
+                    socket.emit('face_result', {'recognition': False, 'name': 'Unknown face', 'face_locations': self.face_locations})
 
 
                 self.face_names.append(f'{name}({confidence})')
@@ -141,11 +141,11 @@ class FaceRecognition:
                 cv2.putText(frame, name, (left + 6, bottom - 6), cv2.FONT_HERSHEY_DUPLEX, 0.8, (255,255,255), 1)
                 # print(frame.shape,  [top, left, right, bottom])
 
-            dim = (width, height)
-            resized_frame = cv2.resize(frame, dim, interpolation = cv2.INTER_AREA)
-            ret, buffer = cv2.imencode('.jpg', resized_frame)
-            frame_bytes = buffer.tobytes()
-            socket.emit('face_recognization', frame_bytes)
+            # dim = (width, height)
+            # resized_frame = cv2.resize(frame, dim, interpolation = cv2.INTER_AREA)
+            # ret, buffer = cv2.imencode('.jpg', resized_frame)
+            # frame_bytes = buffer.tobytes()
+            # socket.emit('face_recognization', frame_bytes)
 
     def start_recording(self, frame):
         fps = 20  # Assuming 20 FPS, adjust based on your needs
@@ -166,7 +166,7 @@ class FaceRecognition:
 # face_recognition_instance = FaceRecognition()
 
 @sio.on('webcam')
-def handle_face_recognization(data):
+def handle_face_recognition(data):
     bytes_frames = data['bytes_frames']
     user_id = data['user_id']
     fullname = str(data['prenom']) + " " + str(data['nom'])

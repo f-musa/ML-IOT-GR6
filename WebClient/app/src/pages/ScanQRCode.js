@@ -3,6 +3,7 @@ import Navbar from '../components/Navbar'
 import { Alert, Box, Button, Card, CardContent, Container, Grid, List, ListItem, ListItemText, Typography } from '@mui/material'
 import { useLocation, useNavigate } from 'react-router-dom'
 import QRCode from 'react-qr-code'
+import AuthNavbar from '../components/AuthNavbar'
 // import { socket } from '../Utils'
 // import { socket_connect } from '../ConnectionManager'
 
@@ -33,7 +34,6 @@ const ScanQRCode = (props) => {
         const handleMobileDeviceConnected = (data) => {
             setSocketData(data);
             SetIsMobileDeviceConnected(true);
-            console.log(data);
 
         }
 
@@ -42,7 +42,11 @@ const ScanQRCode = (props) => {
     }, [socketData, socket])
     return (
         <div>
-            <Navbar socket={socket} />
+        {localStorage.getItem('userName') ? (
+            <AuthNavbar userName={localStorage.getItem('userName')}></AuthNavbar>
+        ):(
+            <Navbar socket={socket}/>
+        )}
             <Container>
                 <Grid
                     container

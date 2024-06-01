@@ -1,0 +1,17 @@
+2024-05-31 21:32:08,181 - INFO - 127.0.0.1 - - [31/May/2024 21:32:08] "GET /socket.io/?EIO=4&transport=websocket&sid=ihWy5qcsaxQImHKJAAAA HTTP/1.1" 200 -
+2024-05-31 21:32:08,378 - INFO - 127.0.0.1 - - [31/May/2024 21:32:08] "GET /socket.io/?EIO=4&transport=polling&t=O_G8rWs HTTP/1.1" 200 -
+2024-05-31 21:32:08,403 - INFO - 127.0.0.1 - - [31/May/2024 21:32:08] "POST /socket.io/?EIO=4&transport=polling&t=O_G8rXB&sid=FHv6YNUth6skN5kLAAAG HTTP/1.1" 200 -
+2024-05-31 21:32:08,406 - INFO - 127.0.0.1 - - [31/May/2024 21:32:08] "GET /socket.io/?EIO=4&transport=polling&t=O_G8rXD&sid=FHv6YNUth6skN5kLAAAG HTTP/1.1" 200 -
+2024-05-31 21:32:08,430 - INFO - 127.0.0.1 - - [31/May/2024 21:32:08] "GET /socket.io/?EIO=4&transport=polling&t=O_G8rXa&sid=FHv6YNUth6skN5kLAAAG HTTP/1.1" 200 -
+2024-05-31 21:32:09,921 - INFO - Statut: Normale - source: speech_recognition - message: Aucune triche n'a été détecté - score: 0.3001185655593872 - transcription : min - réponse attendue: Minimiser les erreurs de prédiction
+2024-05-31 21:32:09,939 - INFO - Statut: Normale - source: speech_recognition - message: Aucune triche n'a été détecté - score: 0.3957405686378479 - transcription : minim - réponse attendue: Minimiser les erreurs de prédiction
+2024-05-31 21:32:10,024 - INFO - Statut: Normale - source: speech_recognition - message: Aucune triche n'a été détecté - score: 0.5390946269035339 - transcription : minimiser - réponse attendue: Minimiser les erreurs de prédiction
+2024-05-31 21:32:10,306 - INFO - Statut: Normale - source: speech_recognition - message: Aucune triche n'a été détecté - score: 0.6399931907653809 - transcription : minimiser les - réponse attendue: Minimiser les erreurs de prédiction
+2024-05-31 21:32:10,525 - ERROR - Statut: Triche détectée - source: speech_recognition - message:Nous avons détecté  un son liée à l'examen - score: 0.7567638158798218 - transcription : minimiser les erreurs - réponse attendue: Minimiser les erreurs de prédiction
+2024-05-31 21:32:10,713 - ERROR - Statut: Triche détectée - source: speech_recognition - message:Nous avons détecté  un son liée à l'examen - score: 0.7557606101036072 - transcription : minimiser les erreurs de - réponse attendue: Minimiser les erreurs de prédiction
+2024-05-31 21:32:10,838 - INFO - Statut: Normale - source: speech_recognition - message: Aucune triche n'a été détecté - score: 0.6960332989692688 - transcription : minimiser les erreurs de pré - réponse attendue: Minimiser les erreurs de prédiction
+2024-05-31 21:32:10,930 - ERROR - Statut: Triche détectée - source: speech_recognition - message:Nous avons détecté  un son liée à l'examen - score: 1.0000001192092896 - transcription : minimiser les erreurs de prédiction - réponse attendue: Minimiser les erreurs de prédiction
+2024-05-31 21:32:46,690 - INFO -  * Detected change in 'E:\\ML-IOT-GR6\\MainServer\\utils.py', reloading
+2024-05-31 21:32:46,821 - INFO -  * Restarting with stat
+2024-05-31 21:34:50,205 - INFO -  * Restarting with stat
+2024-05-31 21:34:57,398 - INFO -  * Restarting with stat

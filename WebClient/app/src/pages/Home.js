@@ -2,11 +2,16 @@ import React from 'react'
 import Navbar from '../components/Navbar'
 import { Container, Typography } from '@mui/material'
 import { socket } from '../Utils'
+import AuthNavbar from '../components/AuthNavbar'
 
 const Home = () => {
   return (
     <div>
-        <Navbar socket={socket} />
+         {localStorage.getItem('userName') ? (
+            <AuthNavbar userName={localStorage.getItem('userName')}></AuthNavbar>
+            ):(
+                <Navbar socket={socket}/>
+            )}
         <Container>
             <Typography variant='h5'>ExamApp</Typography>
         </Container>

@@ -53,8 +53,6 @@ export default function App() {
 
   useEffect(() => {
     etablish_socket_connection();
-    console.log(serverUrl);
-    console.log(socket);
   }, [])
   return (
 
@@ -64,7 +62,7 @@ export default function App() {
           <Route exact path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/student" element={<EtudiantHome />} />
+          <Route path="/examen" element={<EtudiantHome />} />
           <Route path="/professeur" element={<ProfesseurHome />} />
           <Route path="/connect-mobile-device" element={<ScanQRCode socket={socket} />} />
           <Route path="/check-devices" element={<CheckDevices socket={socket} />} />

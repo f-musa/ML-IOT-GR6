@@ -2,6 +2,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Box, Button, CardContent, LinearProgress, Typography } from '@mui/material';
 import microphoneON from '../assets/images/microphone.png';
 import microphoneOFF from '../assets/images/microphone-off.png';
+import SpeechRecognition, { useSpeechRecognition } from 'react-speech-recognition';
+
 
 const MicrophoneTest = (props) => {
     const isMicrophoneAccessed = props.isMicrophoneAccessed;
@@ -16,7 +18,6 @@ const MicrophoneTest = (props) => {
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                 if (stream) {
-                    setIsMicrophoneAccessed(true);
                     audioContext = new AudioContext();
                     audioContextRef.current = audioContext;
                     const source = audioContext.createMediaStreamSource(stream);
@@ -60,19 +61,58 @@ const MicrophoneTest = (props) => {
         };
     }, [isMicrophonePlaying,isMicrophoneAccessed, setIsMicrophoneAccessed]);
 
-    const handleToggleMicrophone = () => {
+
+   
+
+    // transcription
+    const {
+        transcript,
+        listening,
+        resetTranscript,
+        browserSupportsSpeechRecognition
+      } = useSpeechRecognition();
+    
+      if (!browserSupportsSpeechRecognition) {
+        setIsMicrophoneAccessed(false);
+        console.log("Browser doesn't support speech recognition.</span>");
+      }
+
+      if (listening){
+        if (transcript != ''){
+            setIsMicrophoneAccessed(true)
+        }
+      }
+
+      const handleToggleMicrophone = () => {
+        if (isMicrophonePlaying == false){
+            SpeechRecognition.startListening({continuous: true})
+        }else{
+            SpeechRecognition.stopListening()
+            resetTranscript()
+
+        }
         setIsMicrophonePlaying(prevState => !prevState);
     };
 
     return (
         <CardContent>
+           
             <Box display="flex" justifyContent="space-between" alignItems="center">
                 <Button variant='contained' color={isMicrophonePlaying ? 'error' : 'primary'} onClick={handleToggleMicrophone}>
                     {isMicrophonePlaying ? 'Arrêter' : 'Démarrer'}
                 </Button>
+                {isMicrophonePlaying && (<Typography fontSize={11}>"Parlez (Dites ce que vous voulez...)"</Typography>)}
                 <img src={isMicrophonePlaying ? microphoneON : microphoneOFF} className='microphone-img' alt={isMicrophonePlaying ? 'microphone_on' : 'microphone_off'} />
             </Box>
+            
+
             {isMicrophonePlaying && (<LinearProgress variant="determinate" value={audioData} style={{marginTop: '10px'}} color={audioData < 80 ? 'primary' : 'red'} />)}
+            {transcript && (
+                 <Box  style={{marginTop: '10px', fontSize: '12px'}} >
+                  <Typography><b>Transcription:</b></Typography>
+                  <Typography fontSize={13}> {transcript}</Typography>
+             </Box>
+            )}
             {isMicrophoneAccessed === true && (<Typography color='green' fontSize={13} fontWeight='bold' style={{marginTop: '10px'}}>Status: disponible</Typography>)} 
             {isMicrophoneAccessed === false && (<Typography fontSize={13} fontWeight='bold' style={{marginTop: '10px', color: 'red'}}>Status: indisponible</Typography>)} 
         </CardContent>

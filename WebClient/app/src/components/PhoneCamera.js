@@ -1,12 +1,16 @@
 import React, { useEffect, useState } from 'react'
 import defaultImage from '../assets/images/camera_unavailable.png';
-import { Typography } from '@mui/material';
+import { Box, CircularProgress, Typography } from '@mui/material';
 
 
 const PhoneCamera = (props) => {
   const [predictions, setPredictions] = useState(null);
+  const [concatPredictions, setConcatPredictions] = useState([]);
   const playing = props.playing;
   const socket = props.socket;
+  const seconds = props.seconds;
+  const setEnvironnmentResult = props.setEnvironnmentResult;
+  const setInProcess = props.setInProcess;
 
   useEffect(()=>{
 
@@ -22,14 +26,24 @@ const PhoneCamera = (props) => {
     };
 
     const handleObjectPrediction = (data) =>{
-        const results = JSON.parse(data);
+        const results = data;
         setPredictions(results);
-        console.log(results);
+        setConcatPredictions((prevConcatPredictions) => {
+          const updatedPredictions = [...prevConcatPredictions, ...results];
+          return updatedPredictions;
+        });
         
     }
 
     const handleMobileDisconnected = (data) =>{
       videoPlayer.src = defaultImage;
+    }
+
+    const handleAnalyzeEnvironnmentResult = (results) =>{
+      setEnvironnmentResult(results);
+      setConcatPredictions([]);
+     
+      setInProcess(false);
     }
 
     if (playing === true){
@@ -39,26 +53,29 @@ const PhoneCamera = (props) => {
       
 
       socket.on("mobile_disconnected", handleMobileDisconnected);
+
+      socket.on("analyze_environnment_result", handleAnalyzeEnvironnmentResult);
       
     }
   }, [playing, socket])
+
+
+  // envoyé les prédictions après 30 secondes scan pour une analyse
+
+  useEffect(()=>{
+
+    if(seconds == 0){
+      setInProcess(true);
+      socket.emit('analyze_environnment', concatPredictions);
+    }
+
+  }, [seconds])
+
   
 
   return (
     <div>
         <img  className='app__phone_camera_test' src={defaultImage} style={{width: '100%'}} alt='phone camera' />
-        {predictions  && (
-           <>
-             <Typography>Objets detectés: </Typography>      
-             {
-                predictions && predictions.map((object, index) => (
-                
-                    <Typography fontSize={13} key={index}>{`${object.label_name} ( ${object.confidence} ) - distance : ${object.distance} `}</Typography>
-                ))
-             }
-           </>
-
-        )}
     </div>
   )
 }

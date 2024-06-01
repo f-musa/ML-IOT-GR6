@@ -45,7 +45,6 @@ function WebcamStream(props) {
 							if (playing === true){
 								socket.emit('webcam_stream', byteArray);
 								socket.on('face_recognization', handleObjectDetectionStream);
-								console.log('okk');
 							}
 						}, 100);
 						
@@ -56,7 +55,6 @@ function WebcamStream(props) {
 			);
 		}
 
-	console.log('sent');
 	}, [playing, socketData, socket])
 
 

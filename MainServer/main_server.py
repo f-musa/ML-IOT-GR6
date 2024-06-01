@@ -1,16 +1,20 @@
-from flask import Flask, jsonify,request, session
+from flask import Flask, jsonify,request, send_file
 from flask_socketio import SocketIO
 from client import ClientSocket
 from flask_sqlalchemy import SQLAlchemy
 from engineio.payload import Payload
 from client_thread import ClientThread
+from count_object_detection import CountObjectDetection
+from utils import filter_objet_by_score, setup_logger
 from flask_cors import CORS
 from models.schema import *
 from sqlalchemy.orm import sessionmaker
 from flask_jwt_extended import create_access_token,get_jwt,get_jwt_identity, unset_jwt_cookies, jwt_required, JWTManager
+from datetime import datetime
 import json
 import os
 import cv2
+
 
 UPLOAD_FOLDER = 'uploads'
 ID_IMG_FOLDER = 'identification'
@@ -55,7 +59,10 @@ def handle_disconnect():
     for key in keys:
          del connected_clients[key]
          tag = "microservice_disconnected"
-         data = key.lower() + "is disconnected"
+         data = {
+             "microservice":key, 
+             "message":key.lower() + " is disconnected", 
+         }
          if "WEB_CLIENT" in connected_clients:
             thread_web_client = ClientThread(socketio=socketio, client=connected_clients["WEB_CLIENT"], tag=tag, data=data)
             thread_web_client.start()
@@ -69,7 +76,7 @@ def handle_client_name(name):
     global face_client,connected_clients
     client_socket = ClientSocket(request.sid, name)
     connected_clients[name] = client_socket
-    if name == "FACE_RECOGNIZATION":
+    if name == "FACE_RECOGNITION":
         face_client = client_socket
     if name == "MOBILE":
         thread_web_client = ClientThread(socketio=socketio, client=connected_clients["WEB_CLIENT"], tag="mobile_device_connected", data="Mobile device is connected")
@@ -88,6 +95,10 @@ def handle_camera_mobile(frames_bytes):
     if "WEB_CLIENT" in connected_clients:
         thread_web_client = ClientThread(socketio=socketio, client=connected_clients["WEB_CLIENT"], tag="phone_camera", data=frames_bytes)
         thread_web_client.start()
+    
+    if "TEXT_EXTRACTION" in connected_clients:
+        thread_text_extraction = ClientThread(socketio=socketio, client=connected_clients["TEXT_EXTRACTION"],  tag="phone_camera", data=frames_bytes)
+        thread_text_extraction.start()
 
 @socketio.on('open_phone_camera')
 def handle_open_phone_camera(data):
@@ -97,13 +108,16 @@ def handle_open_phone_camera(data):
     else:
         thread_web_client = ClientThread(socketio=socketio, client=connected_clients["WEB_CLIENT"], tag="mobile_disconnected", data="Mobile disconnected")
         thread_web_client.start()
+
+
         
 
 
 @socketio.on('object_detection')
 def handle_object_detection(predictions):
+    filtered_predictions = filter_objet_by_score(predictions)
     if "WEB_CLIENT" in connected_clients:
-        thread_web_client = ClientThread(socketio=socketio, client=connected_clients["WEB_CLIENT"], tag="object_label", data=predictions)
+        thread_web_client = ClientThread(socketio=socketio, client=connected_clients["WEB_CLIENT"], tag="object_label", data=filtered_predictions)
         thread_web_client.start()
         thread_web_client.join()
 
@@ -114,15 +128,15 @@ def handle_object_detection(predictions):
 # webcam pc
 @socketio.on('webcam_stream')
 def handle_webcam(data):
-    if "FACE_RECOGNIZATION" in connected_clients:
-        thread_face_recognization = ClientThread(socketio=socketio, client=face_client, tag="webcam", data=data)
-        thread_face_recognization.start()
+    if "FACE_RECOGNITION" in connected_clients:
+        thread_face_recognition = ClientThread(socketio=socketio, client=face_client, tag="webcam", data=data)
+        thread_face_recognition.start()
 
 
-@socketio.on('face_recognization')
-def handle_face_recognization(frames_bytes):
+@socketio.on('face_recognition')
+def handle_face_recognition(frames_bytes):
     if "WEB_CLIENT" in connected_clients:
-        thread_web_client = ClientThread(socketio=socketio, client=connected_clients["WEB_CLIENT"], tag="face_recognization", data=frames_bytes)
+        thread_web_client = ClientThread(socketio=socketio, client=connected_clients["WEB_CLIENT"], tag="face_recognition", data=frames_bytes)
         thread_web_client.start()
 
 @socketio.on('face_result')
@@ -133,12 +147,111 @@ def handle_face_result(results):
         thread_web_client.start()
 
 
+#analyse environnment
+@socketio.on('analyze_environnment')
+def handle_analyze_environnment(predictions):
+    count_cheating_objects = CountObjectDetection(data=predictions, socketio=socketio,client=connected_clients)
+    count_cheating_objects.start()
 
 
 # text detection
 @socketio.on('text_detection')
 def handle_text_detection(results):
-    print(results)
+    pass
+#sentence similarity
+@socketio.on('microphone_transcription')
+def handle_sentence_similarity(data):
+    if "SENTENCE_SIMILARITY" in connected_clients:
+        thread_ss = ClientThread(socketio=socketio, client=connected_clients["SENTENCE_SIMILARITY"], tag="transciption", data=data)
+        thread_ss.start()
+
+@socketio.on('sentence_similarity_result')
+def handle_sentence_similarity_result(results):
+    if "WEB_CLIENT":
+        thread_web_client = ClientThread(socketio=socketio, client=connected_clients["WEB_CLIENT"], tag="sentence_similarity_result", data=results)
+        thread_web_client.start()
+    
+
+
+# mode examen (évaluation d'une eventuelle tricherie)
+connected_users = {}
+log_objects = {}
+@socketio.on('cheat_eval')
+def handle_cheat(data):
+    source = data['source']
+    cheat_result = []
+
+    #init log file
+    if data['user_id'] not in log_objects:
+        log_directory = "logs/users/"+str(data['user_id'])
+        log_filename = f"log_{data['prenom']}_{data['nom']}_{datetime.now().strftime('%Y-%m-%d')}.log"
+        log = setup_logger(log_directory=log_directory, log_filename=log_filename)
+        current_log = log
+
+    current_log = current_log
+        
+
+    if source == 'face_recognition':
+        results = data['results']
+        print(results)
+        if (results['recognition'] == False):
+            cheat_result.append({'cheating': True, 'source': source, 'message': "Nous ne reconnaissons pas le visage détecté !!!"})
+            current_log.error(f"Statut: Triche détectée - source: {source} - message: Nous ne reconnaissons pas le visage détecté !!!")
+        else:
+            cheat_result.append({'cheating': False, 'source': source, 'message': "Aucune triche n'a été détecté pour cette question"})
+            current_log.info(f"Statut: Normale - source: {source} - message: Aucune triche n'a été détecté")
+
+
+    elif source == 'phone_camera':
+        results = data['results']
+        cheating_object = ['cell phone', 'book',  'backpack',  'handbag']
+        if len(results) > 0:
+            for obj in results:
+                if obj['label_name'] in cheating_object and obj['label_score'] >= 0.70:
+                    cheat_result.append({'cheating': True, 'source': source, 'message': obj['label_name'] + " détecté !!!", 'score': round(obj['label_score'],2) })
+                    current_log.error(f"Statut: Triche détectée - source: {source} - message: {obj['label_name']} détecté - score: {round(obj['label_score'],2)} ")
+
+                elif obj['label_name'] in cheating_object:
+                    cheat_result.append({'cheating': False, 'source': source, 'message':"Aucune triche n'a été détecté pour cette question", 'score': round(obj['label_score'],2), 'object_name': obj['label_name']})
+                    current_log.info(f"Statut: Normale - source: {source} - message: Aucune triche n'a été détecté")
+
+    
+    elif source == 'speech_recognition':
+        results = data['results']
+        if results['score_transciption_answer'] > 0.7:
+            cheat_result.append({'cheating': True, 'source': source, 'message': "Nous avons détecté  un son liée à l'examen", 'score': round(results['score_transciption_answer'],2), 'transcript': results['transcript'], 'answer': results['answer']})
+            current_log.error(f"Statut: Triche détectée - source: {source} - message:Nous avons détecté  un son liée à l'examen - score: {round(results['score_transciption_answer'],2)} - transcription : {results['transcript']} - réponse attendue: {results['answer']}")
+
+        else:
+            cheat_result.append({'cheating': False, 'source': source, 'message': "Aucune triche n'a été détecté pour cette question", 'score': round(results['score_transciption_answer'],2), 'transcript': results['transcript'], 'answer': results['answer']})
+            current_log.info(f"Statut: Normale - source: {source} - message: Aucune triche n'a été détecté - score: {round(results['score_transciption_answer'],2)} - transcription : {results['transcript']} - réponse attendue: {results['answer']}")
+            
+            
+
+
+    
+    #send cheating result
+    if "WEB_CLIENT" in connected_clients:
+        thread_web_client = ClientThread(socketio=socketio, client=connected_clients["WEB_CLIENT"], tag="cheat_result", data=cheat_result)
+        thread_web_client.start()
+        thread_web_client.join()
+
+
+#download log file: 
+@app.route('/download_log_file', methods=['GET'])
+def download_file():
+    user_id = request.args.get('user_id')
+    prenom = request.args.get('prenom')
+    nom = request.args.get('nom')
+    if not user_id:
+        return jsonify({"error": "Filename parameter is missing"}), 400
+
+    file_path = os.path.join("logs/users/"+str(user_id), f"log_{prenom}_{nom}_{datetime.now().strftime('%Y-%m-%d')}.log")
+    
+    if os.path.exists(file_path):
+        return send_file(file_path, as_attachment=True)
+    else:
+        return jsonify({"error": "File not found"}), 404 
 
 
 #web server endpoints
@@ -177,9 +290,9 @@ def signup():
         img = cv2.imread(file_path)
         _, buffer = cv2.imencode('.jpg', img)
         image_bytes = buffer.tobytes()
-        if "FACE_RECOGNIZATION" in connected_clients:
-            thread_face_recognization = ClientThread(socketio=socketio, client=face_client, tag="new_user_avatar", data={'new_user': str(id), 'image_bytes': image_bytes})
-            thread_face_recognization.start()
+        if "FACE_RECOGNITION" in connected_clients:
+            thread_face_recognition = ClientThread(socketio=socketio, client=face_client, tag="new_user_avatar", data={'new_user': str(id), 'image_bytes': image_bytes})
+            thread_face_recognition.start()
         
 
     else:
@@ -214,9 +327,9 @@ def login():
         if(role=='etudiant'):
             etudiant_details = {'token': access_token,'role' : role,'id':user.id,'nom':user.nom,'prenom':user.prenom}
             # send user details to microservice face recognition
-            if "FACE_RECOGNIZATION" in connected_clients:
-                thread_face_recognization = ClientThread(socketio=socketio, client=face_client, tag="new_user_logged", data=etudiant_details)
-                thread_face_recognization.start()
+            if "FACE_RECOGNITION" in connected_clients:
+                thread_face_recognition = ClientThread(socketio=socketio, client=face_client, tag="new_user_logged", data=etudiant_details)
+                thread_face_recognition.start()
 
             return jsonify(etudiant_details), 200
         else:

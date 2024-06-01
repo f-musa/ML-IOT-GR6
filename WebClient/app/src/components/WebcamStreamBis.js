@@ -52,8 +52,6 @@ function WebcamStreamBis(props) {
 					// imageURL = URL.createObjectURL(blob);
 					// video.src = imageURL
 
-					console.log(data);
-
 					setFaceCoordinates(data)
 		
 				}

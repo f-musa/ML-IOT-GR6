@@ -42,5 +42,5 @@ def handle_camera_mobile(frames_bytes):
     
 
 if __name__ == '__main__':
-    sio.connect('http://10.192.50.111:5000')
+    sio.connect('http://localhost:5000')
     sio.wait()

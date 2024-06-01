@@ -20,8 +20,7 @@ const EtudiantHome = () => {
                 localStorage.clear();
                 navigate('/login');
             } else {
-                // Handle login failure
-                console.log('');
+               
             }
         } catch (error) {
             console.error('Login error:', error);
